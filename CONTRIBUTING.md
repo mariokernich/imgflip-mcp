@@ -70,4 +70,4 @@ git push origin main --follow-tags
 only touches `package.json`, the sync script and git, never `node_modules`.)
 
 The tag triggers the [publish workflow](.github/workflows/publish.yml). See
-[docs/PUBLISHING.md](docs/PUBLISHING.md) for the full distribution guide.
+[the publishing guide](https://mariokernich.github.io/imgflip-mcp/publishing/) for the full distribution walkthrough.

@@ -11,6 +11,9 @@ tsconfig.json
 server.json
 biome.json
 pnpm-lock.yaml
+properdocs.yml
+requirements-docs.txt
+site/
 CHANGELOG.md
 CONTRIBUTING.md
 SECURITY.md

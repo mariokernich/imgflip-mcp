@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Imgflip_MCP-0098FF?logo=githubcopilot)](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%7B%22name%22%3A%22imgflip%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22imgflip-mcp%22%5D%2C%22env%22%3A%7B%22IMGFLIP_USERNAME%22%3A%22%24%7Binput%3Aimgflip_username%7D%22%2C%22IMGFLIP_PASSWORD%22%3A%22%24%7Binput%3Aimgflip_password%7D%22%7D%2C%22inputs%22%3A%5B%7B%22id%22%3A%22imgflip_username%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22Imgflip%20username%22%7D%2C%7B%22id%22%3A%22imgflip_password%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22Imgflip%20password%22%2C%22password%22%3Atrue%7D%5D%7D)
 
+**📚 Full documentation: [mariokernich.github.io/imgflip-mcp](https://mariokernich.github.io/imgflip-mcp/)**
+
 There's an MCP server for your database. One for your Kubernetes cluster. One for your cloud bill, one for your ticket system, and at least twelve for reading PDFs. Serious servers for serious work.
 
 But somewhere along the way, the ecosystem forgot the workload that actually keeps engineering teams running: **memes**.
@@ -81,7 +83,7 @@ The server communicates over **stdio**, so your MCP client launches it as a subp
 
 | Route | Best for | How |
 | --- | --- | --- |
-| **npx** | most clients | `npx -y imgflip-mcp` — no clone, no build (requires the package on npm, see [docs/PUBLISHING.md](docs/PUBLISHING.md)) |
+| **npx** | most clients | `npx -y imgflip-mcp` — no clone, no build (requires the package on npm, see [the docs](https://mariokernich.github.io/imgflip-mcp/publishing/)) |
 | **Desktop Extension (`.mcpb`)** | Claude Desktop | download from [Releases](https://github.com/mariokernich/imgflip-mcp/releases), double-click, fill in the credentials form |
 | **Claude Code plugin** | Claude Code | `/plugin marketplace add mariokernich/imgflip-mcp` — this repo is its own plugin marketplace |
 | **VS Code button** | Copilot users | click the *Install in VS Code* badge above |
@@ -141,7 +143,7 @@ The compiled server entry point is `dist/index.js`; the config examples below us
 
 ### Claude Code (CLI)
 
-**Option A — as a plugin.** This repository is its own [plugin marketplace](docs/PUBLISHING.md#4-claude-code-plugin-marketplace):
+**Option A — as a plugin.** This repository is its own [plugin marketplace](https://mariokernich.github.io/imgflip-mcp/publishing/#4-claude-code-plugin-marketplace):
 
 ```text
 /plugin marketplace add mariokernich/imgflip-mcp
@@ -393,12 +395,12 @@ server.json       MCP Registry metadata
 manifest.json     Claude Desktop Extension (MCPB) manifest
 .claude-plugin/   Claude Code plugin + marketplace definition
 .mcp.json         MCP server wiring for the Claude Code plugin
-docs/PUBLISHING.md  distribution guide (npm, registries, extension, plugin)
+docs/             documentation site content (ProperDocs + Material)
 ```
 
 ## Distribution
 
-The server is distributed through the npm registry, the [official MCP Registry](https://registry.modelcontextprotocol.io) (which feeds the [GitHub MCP Registry](https://github.com/mcp) used by Copilot), a Claude Desktop Extension (`.mcpb`) attached to each GitHub release, and this repo's built-in Claude Code plugin marketplace. Releases are fully automated: push a `vX.Y.Z` tag and the [publish workflow](.github/workflows/publish.yml) does the rest. See **[docs/PUBLISHING.md](docs/PUBLISHING.md)** for the complete guide, including the one-time setup and manual fallbacks.
+The server is distributed through the npm registry, the [official MCP Registry](https://registry.modelcontextprotocol.io) (which feeds the [GitHub MCP Registry](https://github.com/mcp) used by Copilot), a Claude Desktop Extension (`.mcpb`) attached to each GitHub release, and this repo's built-in Claude Code plugin marketplace. Releases are fully automated: push a `vX.Y.Z` tag and the [publish workflow](.github/workflows/publish.yml) does the rest. See the **[publishing guide](https://mariokernich.github.io/imgflip-mcp/publishing/)** for the complete walkthrough, including the one-time setup and manual fallbacks.
 
 ## Privacy
 

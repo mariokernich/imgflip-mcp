@@ -1,0 +1,84 @@
+site_name: imgflip-mcp — Meme Generator MCP Server
+site_description: MCP server for the Imgflip meme generator API. Browse templates and create memes from Claude, Copilot and any MCP client — free Imgflip account is all you need.
+site_url: https://mariokernich.github.io/imgflip-mcp/
+repo_url: https://github.com/mariokernich/imgflip-mcp
+repo_name: mariokernich/imgflip-mcp
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Installation:
+      - Claude Desktop: install/claude-desktop.md
+      - Claude Code: install/claude-code.md
+      - VS Code / Copilot: install/vscode-copilot.md
+      - Other MCP Clients: install/other-clients.md
+  - Using imgflip-mcp:
+      - Tools Reference: tools.md
+      - Creating Memes: creating-memes.md
+      - Use Cases & Ideas: use-cases.md
+  - Reference:
+      - Configuration: configuration.md
+      - Premium Tools: premium.md
+      - FAQ & Troubleshooting: faq.md
+      - Privacy: privacy.md
+  - Development:
+      - Local Development: development.md
+      - Architecture: architecture.md
+      - Publishing & Distribution: publishing.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mariokernich/imgflip-mcp
+    - icon: fontawesome/brands/npm
+      link: https://www.npmjs.com/package/imgflip-mcp

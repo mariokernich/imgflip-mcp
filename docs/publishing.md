@@ -95,7 +95,7 @@ for MCP server discovery, and Claude Code's `/mcp` ecosystem. Publishing
 here once makes the server discoverable in all of them; there is no separate
 "Copilot marketplace" submission.
 
-The entry is described by [`server.json`](../server.json). The namespace
+The entry is described by [`server.json`](https://github.com/mariokernich/imgflip-mcp/blob/main/server.json). The namespace
 `io.github.mariokernich/*` is authenticated via GitHub (interactive device
 login locally, OIDC in CI).
 
@@ -119,7 +119,7 @@ curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.ma
 
 Claude Desktop installs local MCP servers as one-click **Desktop Extensions**
 (`.mcpb` bundles — a zip of `manifest.json`, `dist/` and production
-`node_modules`). Our [`manifest.json`](../manifest.json) declares the
+`node_modules`). Our [`manifest.json`](https://github.com/mariokernich/imgflip-mcp/blob/main/manifest.json) declares the
 credentials as `user_config`, so Claude Desktop shows a friendly form
 (username, password, premium checkbox) at install time and stores the
 password in the OS keychain — users never touch JSON.
