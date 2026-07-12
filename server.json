@@ -1,0 +1,42 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.mariokernich/imgflip-mcp",
+  "description": "Browse Imgflip meme templates and generate memes (caption images, AI memes) via the Imgflip API",
+  "repository": {
+    "url": "https://github.com/mariokernich/imgflip-mcp",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "imgflip-mcp",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "IMGFLIP_USERNAME",
+          "description": "Imgflip account username (free account, https://imgflip.com/signup)",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "IMGFLIP_PASSWORD",
+          "description": "Imgflip account password",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "IMGFLIP_PREMIUM",
+          "description": "Set to 'true' to enable the optional Imgflip API Premium tools (search_memes, get_meme, caption_gif, automeme, ai_meme)",
+          "isRequired": false,
+          "isSecret": false,
+          "default": "false"
+        }
+      ]
+    }
+  ]
+}

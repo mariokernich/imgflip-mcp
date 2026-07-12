@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "imgflip": {
+      "command": "npx",
+      "args": ["-y", "imgflip-mcp"],
+      "env": {
+        "IMGFLIP_USERNAME": "${IMGFLIP_USERNAME}",
+        "IMGFLIP_PASSWORD": "${IMGFLIP_PASSWORD}",
+        "IMGFLIP_PREMIUM": "${IMGFLIP_PREMIUM:-false}"
+      }
+    }
+  }
+}

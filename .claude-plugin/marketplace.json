@@ -1,0 +1,20 @@
+{
+  "name": "imgflip-mcp",
+  "owner": {
+    "name": "Mario Kernich",
+    "url": "https://github.com/mariokernich"
+  },
+  "plugins": [
+    {
+      "name": "imgflip",
+      "source": "./",
+      "description": "Generate Imgflip memes from Claude Code — browse templates and caption them via the Imgflip API",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mario Kernich"
+      },
+      "license": "MIT",
+      "keywords": ["imgflip", "meme", "meme-generator", "mcp"]
+    }
+  ]
+}

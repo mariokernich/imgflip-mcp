@@ -1,0 +1,76 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/mcpb/main/dist/manifest.schema.json",
+  "manifest_version": "0.2",
+  "name": "imgflip-mcp",
+  "display_name": "Imgflip Meme Generator",
+  "version": "1.0.0",
+  "description": "Browse Imgflip meme templates and generate memes through conversation.",
+  "long_description": "Connects Claude to the Imgflip meme generator API. Ask for the most popular meme templates and have Claude caption them for you — from simple top/bottom text to multi-box templates with custom positioning and colors. A free Imgflip account is all you need; an optional Imgflip API Premium subscription unlocks template search, GIF captioning, automeme and AI meme generation.",
+  "author": {
+    "name": "Mario Kernich",
+    "url": "https://github.com/mariokernich"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mariokernich/imgflip-mcp"
+  },
+  "homepage": "https://github.com/mariokernich/imgflip-mcp",
+  "documentation": "https://github.com/mariokernich/imgflip-mcp#readme",
+  "support": "https://github.com/mariokernich/imgflip-mcp/issues",
+  "license": "MIT",
+  "keywords": ["imgflip", "meme", "meme-generator", "image", "fun"],
+  "privacy_policies": [
+    "https://github.com/mariokernich/imgflip-mcp/blob/main/PRIVACY.md",
+    "https://imgflip.com/privacy"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/index.js"],
+      "env": {
+        "IMGFLIP_USERNAME": "${user_config.imgflip_username}",
+        "IMGFLIP_PASSWORD": "${user_config.imgflip_password}",
+        "IMGFLIP_PREMIUM": "${user_config.imgflip_premium}"
+      }
+    }
+  },
+  "user_config": {
+    "imgflip_username": {
+      "type": "string",
+      "title": "Imgflip username",
+      "description": "Username of your Imgflip account (a free account from https://imgflip.com/signup is enough)",
+      "required": true
+    },
+    "imgflip_password": {
+      "type": "string",
+      "title": "Imgflip password",
+      "description": "Password of your Imgflip account",
+      "sensitive": true,
+      "required": true
+    },
+    "imgflip_premium": {
+      "type": "boolean",
+      "title": "Enable Premium tools",
+      "description": "Only enable if your account has an Imgflip API Premium subscription — adds search_memes, get_meme, caption_gif, automeme and ai_meme",
+      "required": false,
+      "default": false
+    }
+  },
+  "tools": [
+    { "name": "get_memes", "description": "List the ~100 most popular meme templates" },
+    { "name": "caption_image", "description": "Caption a meme template and get the generated image URL" },
+    { "name": "search_memes", "description": "Search 1M+ meme templates by name (Premium)" },
+    { "name": "get_meme", "description": "Look up a single meme template by id (Premium)" },
+    { "name": "caption_gif", "description": "Caption an animated GIF template (Premium)" },
+    { "name": "automeme", "description": "Auto-pick a template for a piece of text (Premium)" },
+    { "name": "ai_meme", "description": "Let Imgflip's AI invent a whole meme (Premium)" }
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18"
+    }
+  }
+}

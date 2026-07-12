@@ -13,9 +13,14 @@
   ],
   "license": "MIT",
   "author": "Mario Kernich",
+  "mcpName": "io.github.mariokernich/imgflip-mcp",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mariokernich/imgflip-mcp.git"
+  },
+  "homepage": "https://github.com/mariokernich/imgflip-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/mariokernich/imgflip-mcp/issues"
   },
   "type": "module",
   "bin": {

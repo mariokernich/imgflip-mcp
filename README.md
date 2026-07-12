@@ -1,5 +1,9 @@
 # imgflip-mcp
 
+[![npm](https://img.shields.io/npm/v/imgflip-mcp?logo=npm)](https://www.npmjs.com/package/imgflip-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Imgflip_MCP-0098FF?logo=githubcopilot)](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%7B%22name%22%3A%22imgflip%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22imgflip-mcp%22%5D%2C%22env%22%3A%7B%22IMGFLIP_USERNAME%22%3A%22%24%7Binput%3Aimgflip_username%7D%22%2C%22IMGFLIP_PASSWORD%22%3A%22%24%7Binput%3Aimgflip_password%7D%22%7D%2C%22inputs%22%3A%5B%7B%22id%22%3A%22imgflip_username%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22Imgflip%20username%22%7D%2C%7B%22id%22%3A%22imgflip_password%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22Imgflip%20password%22%2C%22password%22%3Atrue%7D%5D%7D)
+
 A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for the [Imgflip meme generator API](https://imgflip.com/api). It lets Claude (and any other MCP-capable client) browse meme templates and generate memes through natural conversation.
 
 > **You:** *"Make me a Drake meme about writing tests vs. testing in production"*
@@ -49,6 +53,18 @@ These require an [Imgflip API Premium subscription](https://imgflip.com/api_upgr
 
 ## Installation
 
+The server communicates over **stdio**, so your MCP client launches it as a subprocess — there is no port or daemon to manage. Pick whichever route fits your client:
+
+| Route | Best for | How |
+| --- | --- | --- |
+| **npx** | most clients | `npx -y imgflip-mcp` — no clone, no build (requires the package on npm, see [docs/PUBLISHING.md](docs/PUBLISHING.md)) |
+| **Desktop Extension (`.mcpb`)** | Claude Desktop | download from [Releases](https://github.com/mariokernich/imgflip-mcp/releases), double-click, fill in the credentials form |
+| **Claude Code plugin** | Claude Code | `/plugin marketplace add mariokernich/imgflip-mcp` — this repo is its own plugin marketplace |
+| **VS Code button** | Copilot users | click the *Install in VS Code* badge above |
+| **From source** | development | see below |
+
+### From source
+
 ```bash
 git clone https://github.com/mariokernich/imgflip-mcp.git
 cd imgflip-mcp
@@ -56,11 +72,19 @@ npm install
 npm run build
 ```
 
-The compiled server entry point is `dist/index.js`. It communicates over **stdio**, so your MCP client launches it as a subprocess — there is no port or daemon to manage.
+The compiled server entry point is `dist/index.js`; the config examples below use `npx -y imgflip-mcp`, which you can always replace with `node /absolute/path/to/imgflip-mcp/dist/index.js`.
 
 ## Using with Claude
 
 ### Claude Desktop
+
+**Option A — one-click Desktop Extension (recommended):**
+
+1. Download the latest `imgflip-mcp-*.mcpb` file from the [Releases page](https://github.com/mariokernich/imgflip-mcp/releases) (or build it yourself: `npx @anthropic-ai/mcpb pack`).
+2. Double-click the file (or use **Settings → Extensions → Install extension…**).
+3. Claude Desktop shows a configuration form: enter your Imgflip username and password (stored in the OS keychain) and, if you have API Premium, tick *Enable Premium tools*. Done — no JSON editing required.
+
+**Option B — manual JSON config:**
 
 1. Open Claude Desktop and go to **Settings → Developer → Edit Config**. This opens (or creates) `claude_desktop_config.json`:
    - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -71,8 +95,8 @@ The compiled server entry point is `dist/index.js`. It communicates over **stdio
    {
      "mcpServers": {
        "imgflip": {
-         "command": "node",
-         "args": ["/absolute/path/to/imgflip-mcp/dist/index.js"],
+         "command": "npx",
+         "args": ["-y", "imgflip-mcp"],
          "env": {
            "IMGFLIP_USERNAME": "your-username",
            "IMGFLIP_PASSWORD": "your-password"
@@ -92,13 +116,22 @@ The compiled server entry point is `dist/index.js`. It communicates over **stdio
 
 ### Claude Code (CLI)
 
-Register the server once:
+**Option A — as a plugin.** This repository is its own [plugin marketplace](docs/PUBLISHING.md#4-claude-code-plugin-marketplace):
+
+```text
+/plugin marketplace add mariokernich/imgflip-mcp
+/plugin install imgflip@imgflip-mcp
+```
+
+The plugin reads `IMGFLIP_USERNAME`, `IMGFLIP_PASSWORD` and (optionally) `IMGFLIP_PREMIUM` from your shell environment, so export them in your `~/.bashrc`/`~/.zshrc`.
+
+**Option B — register the MCP server directly:**
 
 ```bash
 claude mcp add imgflip \
   --env IMGFLIP_USERNAME=your-username \
   --env IMGFLIP_PASSWORD=your-password \
-  -- node /absolute/path/to/imgflip-mcp/dist/index.js
+  -- npx -y imgflip-mcp
 ```
 
 Add `--env IMGFLIP_PREMIUM=true` if you have API Premium. Verify with:
@@ -126,16 +159,26 @@ Claude: [calls caption_image with boxes]
         Here's your meme: https://i.imgflip.com/9x7abc.jpg
 ```
 
-## Other MCP clients (Cursor, VS Code, …)
+## VS Code / GitHub Copilot
 
-Any client that supports stdio MCP servers uses the same shape — command `node`, argument `dist/index.js`, plus the environment variables. Example for Cursor (`.cursor/mcp.json`):
+Click the **Install in VS Code** badge at the top of this README — VS Code opens, prompts securely for your Imgflip username and password, and registers the server for Copilot's agent mode. Equivalent CLI one-liner:
+
+```bash
+code --add-mcp '{"name":"imgflip","command":"npx","args":["-y","imgflip-mcp"],"env":{"IMGFLIP_USERNAME":"${input:imgflip_username}","IMGFLIP_PASSWORD":"${input:imgflip_password}"},"inputs":[{"id":"imgflip_username","type":"promptString","description":"Imgflip username"},{"id":"imgflip_password","type":"promptString","description":"Imgflip password","password":true}]}'
+```
+
+Once published to the [MCP Registry](https://registry.modelcontextprotocol.io), the server is also discoverable in the [GitHub MCP Registry](https://github.com/mcp) and directly inside VS Code (**Extensions view → MCP SERVERS**).
+
+## Other MCP clients (Cursor, …)
+
+Any client that supports stdio MCP servers uses the same shape — command `npx`, args `["-y", "imgflip-mcp"]` (or `node` + path to `dist/index.js`), plus the environment variables. Example for Cursor (`.cursor/mcp.json`):
 
 ```json
 {
   "mcpServers": {
     "imgflip": {
-      "command": "node",
-      "args": ["/absolute/path/to/imgflip-mcp/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "imgflip-mcp"],
       "env": {
         "IMGFLIP_USERNAME": "your-username",
         "IMGFLIP_PASSWORD": "your-password"
@@ -310,10 +353,23 @@ IMGFLIP_USERNAME=you IMGFLIP_PASSWORD=secret \
 
 ```
 src/
-  index.ts    MCP server: tool registration and stdio transport
-  client.ts   Thin typed client for the Imgflip REST API
-  types.ts    Shared type definitions for API payloads
+  index.ts        MCP server: tool registration and stdio transport
+  client.ts       Thin typed client for the Imgflip REST API
+  types.ts        Shared type definitions for API payloads
+server.json       MCP Registry metadata
+manifest.json     Claude Desktop Extension (MCPB) manifest
+.claude-plugin/   Claude Code plugin + marketplace definition
+.mcp.json         MCP server wiring for the Claude Code plugin
+docs/PUBLISHING.md  distribution guide (npm, registries, extension, plugin)
 ```
+
+## Distribution
+
+The server is distributed through the npm registry, the [official MCP Registry](https://registry.modelcontextprotocol.io) (which feeds the [GitHub MCP Registry](https://github.com/mcp) used by Copilot), a Claude Desktop Extension (`.mcpb`) attached to each GitHub release, and this repo's built-in Claude Code plugin marketplace. Releases are fully automated: push a `vX.Y.Z` tag and the [publish workflow](.github/workflows/publish.yml) does the rest. See **[docs/PUBLISHING.md](docs/PUBLISHING.md)** for the complete guide, including the one-time setup and manual fallbacks.
+
+## Privacy
+
+This server runs locally and is stateless: your Imgflip credentials and meme texts are sent exclusively to `https://api.imgflip.com` (which requires them for authentication and generation), and nothing is logged, stored, or sent anywhere else. Generated memes are hosted publicly on imgflip.com. Details in [PRIVACY.md](PRIVACY.md); Imgflip's own handling is covered by the [Imgflip privacy policy](https://imgflip.com/privacy).
 
 ## Notes on the Imgflip API
 
