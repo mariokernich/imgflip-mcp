@@ -6,10 +6,14 @@
  * stdio. Credentials are read from the IMGFLIP_USERNAME / IMGFLIP_PASSWORD
  * environment variables.
  */
+import { createRequire } from "node:module";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { ImgflipClient } from "./client.js";
+
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json") as { version: string };
 
 const client = new ImgflipClient(
   process.env["IMGFLIP_USERNAME"],
@@ -27,7 +31,7 @@ const premiumEnabled = ["1", "true", "yes"].includes(
 
 const server = new McpServer({
   name: "imgflip",
-  version: "1.0.0",
+  version,
 });
 
 /** Shared schema for a caption text box. */
@@ -36,19 +40,24 @@ const boxSchema = z.object({
   x: z.number().int().optional().describe("X coordinate in pixels (auto when omitted)"),
   y: z.number().int().optional().describe("Y coordinate in pixels (auto when omitted)"),
   width: z.number().int().optional().describe("Box width in pixels (auto when omitted)"),
-  height: z.number().int().optional().describe("Box height in pixels (auto when omitted)"),
-  color: z
-    .string()
+  height: z
+    .number()
+    .int()
     .optional()
-    .describe('Font color as hex code, e.g. "#ffffff"'),
+    .describe("Box height in pixels (auto when omitted)"),
+  color: z.string().optional().describe('Font color as hex code, e.g. "#ffffff"'),
   outline_color: z
     .string()
     .optional()
     .describe('Font outline color as hex code, e.g. "#000000"'),
 });
 
+type ContentBlock =
+  | { type: "text"; text: string }
+  | { type: "image"; data: string; mimeType: string };
+
 type ToolResult = {
-  content: { type: "text"; text: string }[];
+  content: ContentBlock[];
   isError?: boolean;
 };
 
@@ -64,6 +73,39 @@ function fail(error: unknown): ToolResult {
     content: [{ type: "text", text: `Imgflip request failed: ${message}` }],
     isError: true,
   };
+}
+
+/** Images larger than this are returned as URL only, not embedded. */
+const MAX_EMBED_BYTES = 2 * 1024 * 1024;
+
+/**
+ * Fetch a generated meme and return it as an inline MCP image block so
+ * clients can render it directly. Returns null (URL-only fallback) for
+ * oversized images or any download problem — embedding is best-effort
+ * and must never fail the tool call.
+ */
+async function fetchImageBlock(url: string): Promise<ContentBlock | null> {
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+    if (!response.ok) return null;
+    const mimeType = response.headers.get("content-type") ?? "";
+    if (!mimeType.startsWith("image/")) return null;
+    const declaredSize = Number(response.headers.get("content-length"));
+    if (declaredSize > MAX_EMBED_BYTES) return null;
+    const buffer = Buffer.from(await response.arrayBuffer());
+    if (buffer.byteLength > MAX_EMBED_BYTES) return null;
+    return { type: "image", data: buffer.toString("base64"), mimeType };
+  } catch {
+    return null;
+  }
+}
+
+/** Result payload + the generated image embedded inline when possible. */
+async function okWithImage(payload: { url: string }): Promise<ToolResult> {
+  const result = ok(payload);
+  const image = await fetchImageBlock(payload.url);
+  if (image) result.content.push(image);
+  return result;
 }
 
 server.registerTool(
@@ -86,10 +128,9 @@ server.registerTool(
       name_filter: z
         .string()
         .optional()
-        .describe(
-          "Case-insensitive substring to filter template names by, e.g. \"drake\"",
-        ),
+        .describe('Case-insensitive substring to filter template names by, e.g. "drake"'),
     },
+    annotations: { readOnlyHint: true, openWorldHint: true },
   },
   async ({ limit, name_filter }) => {
     try {
@@ -148,8 +189,17 @@ server.registerTool(
         .optional()
         .describe("Remove the imgflip.com watermark (Imgflip Premium only)"),
     },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
   },
   async ({ template_id, text0, text1, boxes, font, max_font_size, no_watermark }) => {
+    if (text0 === undefined && text1 === undefined && !boxes?.length) {
+      return fail("No caption provided — pass text0/text1 or a non-empty boxes array.");
+    }
     try {
       const result = await client.captionImage({
         templateId: template_id,
@@ -160,7 +210,7 @@ server.registerTool(
         ...(max_font_size !== undefined && { maxFontSize: max_font_size }),
         ...(no_watermark !== undefined && { noWatermark: no_watermark }),
       });
-      return ok(result);
+      return await okWithImage(result);
     } catch (error) {
       return fail(error);
     }
@@ -184,6 +234,7 @@ if (premiumEnabled) {
           .optional()
           .describe("Include not-safe-for-work templates (default: false)"),
       },
+      annotations: { readOnlyHint: true, openWorldHint: true },
     },
     async ({ query, include_nsfw }) => {
       try {
@@ -207,6 +258,7 @@ if (premiumEnabled) {
       inputSchema: {
         template_id: z.string().describe("The meme template id to look up"),
       },
+      annotations: { readOnlyHint: true, openWorldHint: true },
     },
     async ({ template_id }) => {
       try {
@@ -232,15 +284,19 @@ if (premiumEnabled) {
           .min(1)
           .max(20)
           .describe("Text boxes to render on the GIF"),
-        no_watermark: z
-          .boolean()
-          .optional()
-          .describe("Remove the imgflip.com watermark"),
+        no_watermark: z.boolean().optional().describe("Remove the imgflip.com watermark"),
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true,
       },
     },
     async ({ template_id, boxes, no_watermark }) => {
       try {
-        return ok(await client.captionGif(template_id, boxes, no_watermark ?? false));
+        const result = await client.captionGif(template_id, boxes, no_watermark ?? false);
+        return await okWithImage(result);
       } catch (error) {
         return fail(error);
       }
@@ -258,18 +314,20 @@ if (premiumEnabled) {
       inputSchema: {
         text: z
           .string()
-          .describe(
-            'The meme text, e.g. "one does not simply write bug-free code"',
-          ),
-        no_watermark: z
-          .boolean()
-          .optional()
-          .describe("Remove the imgflip.com watermark"),
+          .describe('The meme text, e.g. "one does not simply write bug-free code"'),
+        no_watermark: z.boolean().optional().describe("Remove the imgflip.com watermark"),
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true,
       },
     },
     async ({ text, no_watermark }) => {
       try {
-        return ok(await client.automeme(text, no_watermark ?? false));
+        const result = await client.automeme(text, no_watermark ?? false);
+        return await okWithImage(result);
       } catch (error) {
         return fail(error);
       }
@@ -301,10 +359,13 @@ if (premiumEnabled) {
           .string()
           .optional()
           .describe("Beginning of the meme text for the AI to complete"),
-        no_watermark: z
-          .boolean()
-          .optional()
-          .describe("Remove the imgflip.com watermark"),
+        no_watermark: z.boolean().optional().describe("Remove the imgflip.com watermark"),
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true,
       },
     },
     async ({ model, template_id, prefix_text, no_watermark }) => {
@@ -315,13 +376,48 @@ if (premiumEnabled) {
           ...(prefix_text !== undefined && { prefixText: prefix_text }),
           ...(no_watermark !== undefined && { noWatermark: no_watermark }),
         });
-        return ok(result);
+        return await okWithImage(result);
       } catch (error) {
         return fail(error);
       }
     },
   );
 }
+
+server.registerPrompt(
+  "make-meme",
+  {
+    title: "Make a meme",
+    description:
+      "Guided meme creation: picks a fitting Imgflip template for a topic " +
+      "and captions it.",
+    argsSchema: {
+      topic: z.string().describe("What the meme should be about"),
+      template: z
+        .string()
+        .optional()
+        .describe('Optional template preference, e.g. "Drake" or "Two Buttons"'),
+    },
+  },
+  ({ topic, template }) => ({
+    messages: [
+      {
+        role: "user" as const,
+        content: {
+          type: "text" as const,
+          text:
+            `Create a meme about: ${topic}\n\n` +
+            (template
+              ? `Use the "${template}" template — find its id via the get_memes tool (name_filter).\n`
+              : "First call get_memes and pick the template whose format best fits the joke.\n") +
+            "Mind the template's box_count: use text0/text1 for two-box " +
+            "templates, otherwise pass a boxes array. Then call caption_image " +
+            "and share the resulting meme with a short explanation of the joke.",
+        },
+      },
+    ],
+  }),
+);
 
 const transport = new StdioServerTransport();
 await server.connect(transport);

@@ -1,0 +1,40 @@
+name: Bug report
+description: Something doesn't work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How to reproduce
+      description: Tool call (name + arguments) or prompt that triggers the problem.
+      placeholder: |
+        1. Call caption_image with { "template_id": "...", ... }
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: MCP client
+      placeholder: e.g. Claude Desktop 1.x, Claude Code 2.x, VS Code Copilot
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: imgflip-mcp version / install method
+      placeholder: e.g. 1.0.0 via npx / .mcpb from release / from source
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed my Imgflip credentials from all logs/snippets above
+          required: true
