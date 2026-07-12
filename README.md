@@ -5,12 +5,29 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Imgflip_MCP-0098FF?logo=githubcopilot)](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%7B%22name%22%3A%22imgflip%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22imgflip-mcp%22%5D%2C%22env%22%3A%7B%22IMGFLIP_USERNAME%22%3A%22%24%7Binput%3Aimgflip_username%7D%22%2C%22IMGFLIP_PASSWORD%22%3A%22%24%7Binput%3Aimgflip_password%7D%22%7D%2C%22inputs%22%3A%5B%7B%22id%22%3A%22imgflip_username%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22Imgflip%20username%22%7D%2C%7B%22id%22%3A%22imgflip_password%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22Imgflip%20password%22%2C%22password%22%3Atrue%7D%5D%7D)
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for the [Imgflip meme generator API](https://imgflip.com/api). It lets Claude (and any other MCP-capable client) browse meme templates and generate memes through natural conversation.
+There's an MCP server for your database. One for your Kubernetes cluster. One for your cloud bill, one for your ticket system, and at least twelve for reading PDFs. Serious servers for serious work.
+
+But somewhere along the way, the ecosystem forgot the workload that actually keeps engineering teams running: **memes**.
+
+`imgflip-mcp` closes that gap. It's a [Model Context Protocol](https://modelcontextprotocol.io) server for the [Imgflip meme generator API](https://imgflip.com/api), so Claude (or any other MCP client) can browse thousands of meme templates and caption them mid-conversation — turning your AI assistant into the coworker who always has the right reaction image.
 
 > **You:** *"Make me a Drake meme about writing tests vs. testing in production"*
 > **Claude:** 🖼️ *calls `get_memes` → calls `caption_image` → sends you the image link*
 
 Everything you need is a **free Imgflip account**. An Imgflip API Premium subscription is **optional** — it unlocks five extra tools (search, GIF captioning, automeme, AI memes), which stay hidden unless you explicitly enable them.
+
+## What would I even use this for?
+
+More than you'd think. Once meme generation is one sentence away, it sneaks into real workflows:
+
+- **Docs people actually finish reading.** Let Claude write your README section and cap it with a fitting meme — retention engineering at its finest.
+- **Release notes with a punchline.** "v2.0: we rewrote everything" hits different next to an *Expanding Brain* meme of your migration steps.
+- **Code review, but kind.** Answer the 400-line PR with a *Two Buttons* meme instead of a lecture. Same message, fewer hurt feelings.
+- **Retros & standups.** Feed in the sprint summary, get the *This Is Fine* recap the team deserves.
+- **Incident postmortems.** Nothing says "blameless" like a well-chosen *Disaster Girl* on the last slide.
+- **Slack announcements.** Deploy freezes, on-call handovers, "the build is green again" — all measurably more effective as memes.
+
+Is any of this *necessary*? No. Neither is syntax highlighting, and yet here we are.
 
 ## Tools
 
