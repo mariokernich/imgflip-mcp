@@ -1,0 +1,46 @@
+{
+  "name": "imgflip-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol (MCP) server for the Imgflip meme generator API — browse templates, caption memes, and generate AI memes from any MCP client.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "imgflip",
+    "meme",
+    "meme-generator",
+    "ai",
+    "claude"
+  ],
+  "license": "MIT",
+  "author": "Mario Kernich",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mariokernich/imgflip-mcp.git"
+  },
+  "type": "module",
+  "bin": {
+    "imgflip-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}
