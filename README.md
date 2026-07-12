@@ -411,6 +411,38 @@ This server runs locally and is stateless: your Imgflip credentials and meme tex
 - All generation endpoints are `application/x-www-form-urlencoded` POST requests; this server handles the encoding (including the `boxes[i][field]` array syntax) for you.
 - Full upstream documentation: <https://imgflip.com/api>
 
+## FAQ
+
+**Do I need to pay for anything?**
+No. A free Imgflip account covers the core workflow (browse templates, create memes). Imgflip API Premium is only needed for the five opt-in extras like template search and AI memes — the server works happily without it, forever.
+
+**Why does the server only show two tools?**
+That's intentional. The five Premium tools stay hidden unless you set `IMGFLIP_PREMIUM=true`, so you never see tools that would just error on a free account. Two tools that work beat seven that don't.
+
+**Why username and password instead of an API key?**
+Ask Imgflip — their API has authenticated this way since forever. The pragmatic answer: create a dedicated Imgflip account just for the API and let your MCP client store the password (the Claude Desktop extension puts it in the OS keychain).
+
+**Are my memes private?**
+No. Everything you generate is hosted on imgflip.com under a public URL — anyone with the link can see it. Maybe don't caption the unreleased quarterly numbers. Imgflip may also delete images that get no views for a long time, so archive anything you're attached to.
+
+**Can I get rid of the watermark?**
+Yes, pass `no_watermark: true` — but it only works if your Imgflip account has a Premium subscription. Otherwise the watermark stays, as a small tribute to the free lunch you're eating.
+
+**The meme shows up as a link but not as an image. Why?**
+The server embeds the generated image inline when it can (up to 2 MB). If the image is bigger or the download hiccups, you still get the URL — embedding is best-effort by design and never fails the request.
+
+**My template has four text boxes. How do I fill them all?**
+Skip `text0`/`text1` and pass the `boxes` array instead — one entry per box, optionally with position and colors. Check the template's `box_count` from `get_memes` to know how many you need.
+
+**Does this only work with Claude?**
+No — any MCP client that speaks stdio works: GitHub Copilot in VS Code, Cursor, and friends. Claude just happens to have excellent taste in memes.
+
+**Is this an official Imgflip project?**
+No, it's an independent community project. All meme generation happens through their public API — see the [Imgflip terms](https://imgflip.com/terms) for what's allowed.
+
+**Something's broken. Where do I complain?**
+[Open an issue](https://github.com/mariokernich/imgflip-mcp/issues) — ideally with the tool call that failed and your client. Bonus points if the bug report contains a meme.
+
 ## License
 
 [MIT](LICENSE)
