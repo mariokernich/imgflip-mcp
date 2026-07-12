@@ -7,6 +7,7 @@ import type {
 } from "./types.js";
 
 const API_BASE = "https://api.imgflip.com";
+const REQUEST_TIMEOUT_MS = 30_000;
 
 /** Error raised for any failure reported by or while reaching the Imgflip API. */
 export class ImgflipError extends Error {
@@ -45,7 +46,7 @@ export class ImgflipClient {
 
   /** GET /get_memes — free, no credentials required. */
   async getMemes(): Promise<MemeTemplate[]> {
-    const response = await fetch(`${API_BASE}/get_memes`);
+    const response = await this.request(`${API_BASE}/get_memes`, {});
     const data = await this.unwrap<{ memes: MemeTemplate[] }>(response);
     return data.memes;
   }
@@ -145,12 +146,28 @@ export class ImgflipClient {
         }
       }
     });
-    const response = await fetch(`${API_BASE}/${endpoint}`, {
+    const response = await this.request(`${API_BASE}/${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
     });
     return this.unwrap<T>(response);
+  }
+
+  private async request(url: string, init: RequestInit): Promise<Response> {
+    try {
+      return await fetch(url, {
+        ...init,
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "TimeoutError") {
+        throw new ImgflipError(
+          `Imgflip API did not respond within ${REQUEST_TIMEOUT_MS / 1000}s`,
+        );
+      }
+      throw error;
+    }
   }
 
   private async unwrap<T>(response: Response): Promise<T> {

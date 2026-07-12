@@ -1,5 +1,6 @@
 # imgflip-mcp
 
+[![CI](https://github.com/mariokernich/imgflip-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/mariokernich/imgflip-mcp/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/imgflip-mcp?logo=npm)](https://www.npmjs.com/package/imgflip-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Imgflip_MCP-0098FF?logo=githubcopilot)](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%7B%22name%22%3A%22imgflip%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22imgflip-mcp%22%5D%2C%22env%22%3A%7B%22IMGFLIP_USERNAME%22%3A%22%24%7Binput%3Aimgflip_username%7D%22%2C%22IMGFLIP_PASSWORD%22%3A%22%24%7Binput%3Aimgflip_password%7D%22%7D%2C%22inputs%22%3A%5B%7B%22id%22%3A%22imgflip_username%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22Imgflip%20username%22%7D%2C%7B%22id%22%3A%22imgflip_password%22%2C%22type%22%3A%22promptString%22%2C%22description%22%3A%22Imgflip%20password%22%2C%22password%22%3Atrue%7D%5D%7D)
@@ -33,6 +34,12 @@ These two tools cover the everyday use case end to end: find a template, put tex
 | `ai_meme` | Let Imgflip's AI invent a whole meme | `POST /ai_meme` |
 
 These require an [Imgflip API Premium subscription](https://imgflip.com/api_upgrade) and are **not registered by default**, so free-tier users never see tools that would fail. If you have Premium, enable them by setting `IMGFLIP_PREMIUM=true`.
+
+### Extras
+
+- **Inline images:** every meme-generating tool returns the result both as URL *and* as an embedded image (up to 2 MB), so clients like Claude Desktop render the meme directly in the chat.
+- **`make-meme` prompt:** an MCP prompt that guides the model through template selection and captioning — pass a `topic` and optionally a `template` preference.
+- **Tool annotations:** lookup tools are marked `readOnlyHint` so clients can auto-approve them safely.
 
 ## Prerequisites
 
@@ -338,9 +345,13 @@ All tools return errors as readable text with the MCP `isError` flag set, so Cla
 npm install        # install dependencies
 npm run build      # compile TypeScript to dist/
 npm run dev        # compile in watch mode
+npm test           # build + run the Vitest suite (unit + stdio smoke tests)
+npm run lint       # Biome lint & format check
 npm run typecheck  # type-check without emitting
 npm start          # run the compiled server
 ```
+
+CI runs lint, typecheck, tests, a version-consistency check and MCPB manifest validation on every push and pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and [CHANGELOG.md](CHANGELOG.md) for release history.
 
 Test interactively with the [MCP Inspector](https://github.com/modelcontextprotocol/inspector):
 
@@ -353,9 +364,11 @@ IMGFLIP_USERNAME=you IMGFLIP_PASSWORD=secret \
 
 ```
 src/
-  index.ts        MCP server: tool registration and stdio transport
+  index.ts        MCP server: tools, prompt, stdio transport
   client.ts       Thin typed client for the Imgflip REST API
   types.ts        Shared type definitions for API payloads
+test/             Vitest suite (client unit tests + stdio smoke tests)
+scripts/          sync-versions.mjs (single-source version from package.json)
 server.json       MCP Registry metadata
 manifest.json     Claude Desktop Extension (MCPB) manifest
 .claude-plugin/   Claude Code plugin + marketplace definition

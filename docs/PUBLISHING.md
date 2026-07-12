@@ -40,16 +40,18 @@ PRIVACY.md        privacy policy (required for the Claude extension directory)
 
 ## Cutting a release
 
-1. Bump the version in **four** places (the workflow refuses to publish if
-   they disagree):
-   - `package.json` → `version`
-   - `server.json` → `version` **and** `packages[0].version`
-   - `manifest.json` → `version`
-2. Commit, then tag and push:
+1. Bump the version — one command updates `package.json` and syncs it to
+   `server.json`, `manifest.json` and `.claude-plugin/*` (via the
+   `scripts/sync-versions.mjs` hook), commits, and creates the tag:
 
    ```bash
-   git tag v1.0.1
-   git push origin main v1.0.1
+   npm version patch   # or minor / major
+   ```
+
+2. Push with the tag:
+
+   ```bash
+   git push origin main --follow-tags
    ```
 
 3. The `Publish` workflow then:
@@ -221,9 +223,9 @@ npm package and MCP Registry entry exist:
 ## Release checklist (TL;DR)
 
 - [ ] `NPM_TOKEN` secret exists (one-time)
-- [ ] Version bumped in `package.json`, `server.json` (×2), `manifest.json`
-- [ ] `npm run build && npm run typecheck` green
-- [ ] Commit pushed to `main`
-- [ ] Tag `vX.Y.Z` pushed → CI publishes npm + MCP Registry + `.mcpb` release
+- [ ] `CHANGELOG.md`: move `[Unreleased]` entries under the new version
+- [ ] `npm run lint && npm test` green
+- [ ] `npm version patch|minor|major` (bumps + syncs all version fields + tags)
+- [ ] `git push origin main --follow-tags` → CI publishes npm + MCP Registry + `.mcpb` release
 - [ ] (first release only) submit the `.mcpb` to the Claude extension directory
 - [ ] (optional) claim listings on Smithery/Glama

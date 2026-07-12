@@ -18,6 +18,7 @@
   "documentation": "https://github.com/mariokernich/imgflip-mcp#readme",
   "support": "https://github.com/mariokernich/imgflip-mcp/issues",
   "license": "MIT",
+  "icon": "icon.png",
   "keywords": ["imgflip", "meme", "meme-generator", "image", "fun"],
   "privacy_policies": [
     "https://github.com/mariokernich/imgflip-mcp/blob/main/PRIVACY.md",
@@ -60,11 +61,26 @@
   },
   "tools": [
     { "name": "get_memes", "description": "List the ~100 most popular meme templates" },
-    { "name": "caption_image", "description": "Caption a meme template and get the generated image URL" },
-    { "name": "search_memes", "description": "Search 1M+ meme templates by name (Premium)" },
-    { "name": "get_meme", "description": "Look up a single meme template by id (Premium)" },
-    { "name": "caption_gif", "description": "Caption an animated GIF template (Premium)" },
-    { "name": "automeme", "description": "Auto-pick a template for a piece of text (Premium)" },
+    {
+      "name": "caption_image",
+      "description": "Caption a meme template and get the generated image URL"
+    },
+    {
+      "name": "search_memes",
+      "description": "Search 1M+ meme templates by name (Premium)"
+    },
+    {
+      "name": "get_meme",
+      "description": "Look up a single meme template by id (Premium)"
+    },
+    {
+      "name": "caption_gif",
+      "description": "Caption an animated GIF template (Premium)"
+    },
+    {
+      "name": "automeme",
+      "description": "Auto-pick a template for a piece of text (Premium)"
+    },
     { "name": "ai_meme", "description": "Let Imgflip's AI invent a whole meme (Premium)" }
   ],
   "compatibility": {
