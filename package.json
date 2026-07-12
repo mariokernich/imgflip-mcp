@@ -33,6 +33,7 @@
   "engines": {
     "node": ">=18"
   },
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -40,12 +41,12 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "pretest": "npm run build",
+    "pretest": "pnpm build",
     "test": "vitest run",
     "test:watch": "vitest",
     "sync-versions": "node scripts/sync-versions.mjs",
     "version": "node scripts/sync-versions.mjs && git add server.json manifest.json .claude-plugin",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

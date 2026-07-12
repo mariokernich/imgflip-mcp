@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Vitest test suite: unit tests for the API client and stdio smoke tests
   against the compiled server.
 - Biome for linting/formatting, Dependabot for dependency updates.
+- pnpm as the package manager (pinned via `packageManager`, used in CI).
 
 [Unreleased]: https://github.com/mariokernich/imgflip-mcp/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/mariokernich/imgflip-mcp/releases/tag/v1.0.0

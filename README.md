@@ -75,8 +75,9 @@ The server communicates over **stdio**, so your MCP client launches it as a subp
 ```bash
 git clone https://github.com/mariokernich/imgflip-mcp.git
 cd imgflip-mcp
-npm install
-npm run build
+corepack enable   # provides pnpm (see packageManager in package.json)
+pnpm install
+pnpm build
 ```
 
 The compiled server entry point is `dist/index.js`; the config examples below use `npx -y imgflip-mcp`, which you can always replace with `node /absolute/path/to/imgflip-mcp/dist/index.js`.
@@ -341,14 +342,16 @@ All tools return errors as readable text with the MCP `isError` flag set, so Cla
 
 ## Development
 
+This project uses [pnpm](https://pnpm.io) (`corepack enable` sets it up automatically):
+
 ```bash
-npm install        # install dependencies
-npm run build      # compile TypeScript to dist/
-npm run dev        # compile in watch mode
-npm test           # build + run the Vitest suite (unit + stdio smoke tests)
-npm run lint       # Biome lint & format check
-npm run typecheck  # type-check without emitting
-npm start          # run the compiled server
+pnpm install        # install dependencies
+pnpm build          # compile TypeScript to dist/
+pnpm dev            # compile in watch mode
+pnpm test           # build + run the Vitest suite (unit + stdio smoke tests)
+pnpm lint           # Biome lint & format check
+pnpm typecheck      # type-check without emitting
+pnpm start          # run the compiled server
 ```
 
 CI runs lint, typecheck, tests, a version-consistency check and MCPB manifest validation on every push and pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and [CHANGELOG.md](CHANGELOG.md) for release history.

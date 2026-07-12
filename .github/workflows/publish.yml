@@ -24,9 +24,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: pnpm/action-setup@v4 # version comes from packageManager in package.json
+
       - uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: pnpm
           registry-url: https://registry.npmjs.org
 
       - name: Check that all version fields match the tag
@@ -46,9 +49,12 @@ jobs:
 
       - name: Install and build
         run: |
-          npm ci
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm run build
 
+      # npm (not pnpm) is used for the publish itself: npm's --provenance
+      # support is the most mature and works with setup-node's registry-url
+      # + NODE_AUTH_TOKEN wiring. The tarball content is identical.
       - name: Publish to npm
         run: npm publish --provenance --access public
         env:
@@ -60,10 +66,13 @@ jobs:
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish
 
+      # node-linker=hoisted gives a flat, symlink-free node_modules so the
+      # .mcpb zip contains real files (pnpm's default layout uses symlinks).
       - name: Build Claude Desktop Extension (.mcpb)
         run: |
-          npm ci --omit=dev
-          npx --yes @anthropic-ai/mcpb pack . "imgflip-mcp-${GITHUB_REF_NAME}.mcpb"
+          rm -rf node_modules
+          pnpm install --prod --frozen-lockfile --config.node-linker=hoisted
+          pnpm dlx @anthropic-ai/mcpb pack . "imgflip-mcp-${GITHUB_REF_NAME}.mcpb"
 
       - name: Create GitHub release with the .mcpb asset
         env:

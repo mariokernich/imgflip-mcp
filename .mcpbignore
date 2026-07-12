@@ -10,7 +10,7 @@ docs/
 tsconfig.json
 server.json
 biome.json
-package-lock.json
+pnpm-lock.yaml
 CHANGELOG.md
 CONTRIBUTING.md
 SECURITY.md

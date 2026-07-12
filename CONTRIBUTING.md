@@ -5,23 +5,27 @@ need to get started.
 
 ## Development setup
 
+This project uses [pnpm](https://pnpm.io) — the exact version is pinned via the
+`packageManager` field, so `corepack enable` is all you need.
+
 ```bash
 git clone https://github.com/mariokernich/imgflip-mcp.git
 cd imgflip-mcp
-npm install
+corepack enable
+pnpm install
 ```
 
 Useful commands:
 
 | Command | Purpose |
 | --- | --- |
-| `npm run build` | Compile TypeScript to `dist/` |
-| `npm run dev` | Compile in watch mode |
-| `npm test` | Build + run the full test suite (Vitest) |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run lint` | Lint & format check (Biome) |
-| `npm run lint:fix` | Auto-fix lint/format issues |
-| `npm run typecheck` | Type-check without emitting |
+| `pnpm build` | Compile TypeScript to `dist/` |
+| `pnpm dev` | Compile in watch mode |
+| `pnpm test` | Build + run the full test suite (Vitest) |
+| `pnpm test:watch` | Run tests in watch mode |
+| `pnpm lint` | Lint & format check (Biome) |
+| `pnpm lint:fix` | Auto-fix lint/format issues |
+| `pnpm typecheck` | Type-check without emitting |
 
 To try your changes against the real Imgflip API, use the MCP Inspector:
 
@@ -51,7 +55,7 @@ IMGFLIP_USERNAME=you IMGFLIP_PASSWORD=secret \
 
 1. Fork and create a feature branch.
 2. Make your changes (with tests).
-3. Ensure `npm run lint && npm run typecheck && npm test` passes.
+3. Ensure `pnpm lint && pnpm typecheck && pnpm test` passes.
 4. Add an entry under `[Unreleased]` in `CHANGELOG.md` if user-visible.
 5. Open a PR with a clear description of the motivation and the change.
 
@@ -61,6 +65,9 @@ IMGFLIP_USERNAME=you IMGFLIP_PASSWORD=secret \
 npm version patch   # bumps package.json + syncs all other version fields
 git push origin main --follow-tags
 ```
+
+(`npm version` is used deliberately — pnpm has no equivalent command, and it
+only touches `package.json`, the sync script and git, never `node_modules`.)
 
 The tag triggers the [publish workflow](.github/workflows/publish.yml). See
 [docs/PUBLISHING.md](docs/PUBLISHING.md) for the full distribution guide.
