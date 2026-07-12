@@ -13,6 +13,14 @@ on:
   push:
     tags:
       - "v*"
+  # Fallback for environments that can't push tags: dispatch with the tag
+  # name and the workflow creates the tag itself (via gh release create).
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag, e.g. v1.0.0 (created on this commit if missing)'
+        required: true
+        type: string
 
 permissions:
   contents: write # create the GitHub release with the .mcpb asset
@@ -32,9 +40,20 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
-      - name: Check that all version fields match the tag
+      - name: Determine release tag
+        id: tag
         run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check that all version fields match the tag
+        env:
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          TAG_VERSION="${RELEASE_TAG#v}"
           PKG=$(jq -r .version package.json)
           SRV=$(jq -r .version server.json)
           SRV_PKG=$(jq -r '.packages[0].version' server.json)
@@ -69,16 +88,22 @@ jobs:
       # node-linker=hoisted gives a flat, symlink-free node_modules so the
       # .mcpb zip contains real files (pnpm's default layout uses symlinks).
       - name: Build Claude Desktop Extension (.mcpb)
+        env:
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
         run: |
           rm -rf node_modules
           pnpm install --prod --frozen-lockfile --config.node-linker=hoisted
-          pnpm dlx @anthropic-ai/mcpb pack . "imgflip-mcp-${GITHUB_REF_NAME}.mcpb"
+          pnpm dlx @anthropic-ai/mcpb pack . "imgflip-mcp-${RELEASE_TAG}.mcpb"
 
+      # On workflow_dispatch the tag doesn't exist yet — --target makes
+      # gh release create it on the dispatched commit.
       - name: Create GitHub release with the .mcpb asset
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            "imgflip-mcp-${GITHUB_REF_NAME}.mcpb" \
-            --title "$GITHUB_REF_NAME" \
+          gh release create "$RELEASE_TAG" \
+            "imgflip-mcp-${RELEASE_TAG}.mcpb" \
+            --target "$GITHUB_SHA" \
+            --title "$RELEASE_TAG" \
             --generate-notes
