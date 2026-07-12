@@ -75,9 +75,12 @@ it with `npx -y imgflip-mcp` and never need to clone this repo.
 Manual publish:
 
 ```bash
-npm ci && npm run build
+pnpm install --frozen-lockfile && pnpm build
 npm publish --access public
 ```
+
+(`npm publish` also works in this pnpm repo — publishing only packs `dist/`
+per the `files` field and needs no `node_modules` layout knowledge.)
 
 The `mcpName` field in `package.json`
 (`io.github.mariokernich/imgflip-mcp`) is how the MCP Registry verifies that
@@ -124,9 +127,11 @@ password in the OS keychain — users never touch JSON.
 Build locally:
 
 ```bash
-npm ci && npm run build
-npm ci --omit=dev                     # bundle only runtime deps
-npx @anthropic-ai/mcpb pack . imgflip-mcp.mcpb
+pnpm install --frozen-lockfile && pnpm build
+# hoisted layout = flat, symlink-free node_modules for a portable bundle
+rm -rf node_modules
+pnpm install --prod --frozen-lockfile --config.node-linker=hoisted
+pnpm dlx @anthropic-ai/mcpb pack . imgflip-mcp.mcpb
 ```
 
 Test it by double-clicking the file (or **Settings → Extensions → Install
@@ -224,7 +229,7 @@ npm package and MCP Registry entry exist:
 
 - [ ] `NPM_TOKEN` secret exists (one-time)
 - [ ] `CHANGELOG.md`: move `[Unreleased]` entries under the new version
-- [ ] `npm run lint && npm test` green
+- [ ] `pnpm lint && pnpm test` green
 - [ ] `npm version patch|minor|major` (bumps + syncs all version fields + tags)
 - [ ] `git push origin main --follow-tags` → CI publishes npm + MCP Registry + `.mcpb` release
 - [ ] (first release only) submit the `.mcpb` to the Claude extension directory

@@ -14,21 +14,23 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: pnpm/action-setup@v4 # version comes from packageManager in package.json
+
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Typecheck
-        run: npm run typecheck
+        run: pnpm run typecheck
 
       - name: Test (builds first via pretest)
-        run: npm test
+        run: pnpm test
 
       - name: Check version consistency
         run: |
@@ -39,10 +41,10 @@ jobs:
                    "$(jq -r .version .claude-plugin/plugin.json)" \
                    "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)"; do
             if [ "$v" != "$PKG" ]; then
-              echo "::error::Version mismatch: package.json has $PKG, found $v (run npm run sync-versions)"
+              echo "::error::Version mismatch: package.json has $PKG, found $v (run pnpm run sync-versions)"
               exit 1
             fi
           done
 
       - name: Validate MCPB manifest
-        run: npx --yes @anthropic-ai/mcpb validate manifest.json
+        run: pnpm dlx @anthropic-ai/mcpb validate manifest.json
