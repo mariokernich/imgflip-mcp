@@ -1,0 +1,11 @@
+# Excluded from the Desktop Extension bundle (dist/ + production
+# node_modules + manifest + README/LICENSE/PRIVACY are what ships).
+src/
+docs/
+.github/
+.claude-plugin/
+.mcp.json
+tsconfig.json
+server.json
+package-lock.json
+*.mcpb

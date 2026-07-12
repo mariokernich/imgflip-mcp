@@ -1,0 +1,75 @@
+# Release pipeline: push a tag like v1.2.3 and this workflow will
+#   1. verify the tag matches the versions in package.json / server.json / manifest.json
+#   2. build and publish the package to npm (with provenance)
+#   3. publish the server metadata to the official MCP Registry
+#      (which feeds the GitHub MCP Registry used by Copilot/VS Code)
+#   4. build the Claude Desktop Extension (.mcpb) and attach it to a GitHub release
+#
+# Required repository secret: NPM_TOKEN (npm access token with publish rights).
+# The MCP Registry step needs no secret — it authenticates via GitHub OIDC.
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # create the GitHub release with the .mcpb asset
+  id-token: write # OIDC token for npm provenance + MCP Registry login
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Check that all version fields match the tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG=$(jq -r .version package.json)
+          SRV=$(jq -r .version server.json)
+          SRV_PKG=$(jq -r '.packages[0].version' server.json)
+          MAN=$(jq -r .version manifest.json)
+          echo "tag=$TAG_VERSION package.json=$PKG server.json=$SRV/$SRV_PKG manifest.json=$MAN"
+          for v in "$PKG" "$SRV" "$SRV_PKG" "$MAN"; do
+            if [ "$v" != "$TAG_VERSION" ]; then
+              echo "::error::Version mismatch: expected $TAG_VERSION, found $v"
+              exit 1
+            fi
+          done
+
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to the MCP Registry
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m).tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
+
+      - name: Build Claude Desktop Extension (.mcpb)
+        run: |
+          npm ci --omit=dev
+          npx --yes @anthropic-ai/mcpb pack . "imgflip-mcp-${GITHUB_REF_NAME}.mcpb"
+
+      - name: Create GitHub release with the .mcpb asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "imgflip-mcp-${GITHUB_REF_NAME}.mcpb" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes
