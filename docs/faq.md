@@ -49,6 +49,15 @@ The flag only *registers* the tools; the Imgflip account itself must have the AP
 
 The id doesn't exist (or is animated-only for `caption_image`). Re-check via `get_memes` — or `search_memes`/`get_meme` with Premium.
 
+### The assistant draws an SVG instead of calling the tools
+
+Since v1.0.1 the server sends MCP instructions that tell models to always
+use the Imgflip tools for meme requests — make sure you're on the latest
+version (`npx` picks it up automatically; restart your client). If it still
+happens, say "use the imgflip tools" once, or check that the server is
+actually connected (see below) — a silent SVG is often a sign the tools
+aren't available at all.
+
 ### Tools don't show up in the client at all
 
 1. Restart the client fully (Claude Desktop: quit from tray, not window-close).

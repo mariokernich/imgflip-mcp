@@ -27,6 +27,7 @@ describe("imgflip-mcp server over stdio", () => {
         "caption_image",
         "get_memes",
       ]);
+      expect(client.getInstructions()).toContain("never draw the meme yourself");
     } finally {
       await client.close();
     }

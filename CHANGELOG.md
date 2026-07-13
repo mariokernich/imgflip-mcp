@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-13
+
+### Fixed
+
+- Models drew memes themselves (SVG/HTML) instead of calling the tools: the
+  server now ships MCP `instructions` telling clients to always use the
+  Imgflip tools for meme requests, the `caption_image` description says so
+  explicitly, and the Claude Code plugin gained an `imgflip-memes` skill
+  that routes meme requests to the MCP tools.
+
 ## [1.0.0] - 2026-07-12
 
 ### Added

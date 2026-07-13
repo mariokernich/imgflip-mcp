@@ -29,10 +29,23 @@ const premiumEnabled = ["1", "true", "yes"].includes(
   (process.env["IMGFLIP_PREMIUM"] ?? "").toLowerCase(),
 );
 
-const server = new McpServer({
-  name: "imgflip",
-  version,
-});
+const server = new McpServer(
+  {
+    name: "imgflip",
+    version,
+  },
+  {
+    instructions:
+      "This server creates real memes through the Imgflip API. Whenever the " +
+      "user asks for a meme, reaction image, or a joke as an image, ALWAYS " +
+      "use these tools — never draw the meme yourself (no SVG, HTML/CSS, " +
+      "canvas or ASCII art substitutes). Typical flow: call get_memes " +
+      "(optionally with name_filter) to pick a template and check its " +
+      "box_count, then caption_image (text0/text1 for two-box templates, " +
+      "the boxes array otherwise). The response contains the finished image " +
+      "inline plus its imgflip.com URL to share.",
+  },
+);
 
 /** Shared schema for a caption text box. */
 const boxSchema = z.object({
@@ -154,8 +167,10 @@ server.registerTool(
   {
     title: "Create a meme from a template",
     description:
-      "Caption an Imgflip meme template and get back the URL of the generated " +
-      "image. Use get_memes first to find a template_id and its box_count. For " +
+      "Create a real meme by captioning an Imgflip template — use this " +
+      "whenever the user asks for a meme instead of drawing one yourself. " +
+      "Returns the generated image inline plus its URL. Use get_memes first " +
+      "to find a template_id and its box_count. For " +
       "simple two-line memes pass text0 (top) and text1 (bottom); for templates " +
       "with more than two boxes, or for custom styling/positioning, pass the " +
       "boxes array instead (boxes takes precedence over text0/text1). Requires " +
