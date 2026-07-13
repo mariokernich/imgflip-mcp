@@ -56,7 +56,9 @@ use the Imgflip tools for meme requests — make sure you're on the latest
 version (`npx` picks it up automatically; restart your client). If it still
 happens, say "use the imgflip tools" once, or check that the server is
 actually connected (see below) — a silent SVG is often a sign the tools
-aren't available at all.
+aren't available at all. VS Code/Copilot users: see the
+[step-by-step verification](install/vscode-copilot.md#verify-step-by-step),
+where an unconfirmed trust prompt or deselected tools are the usual culprits.
 
 ### Tools don't show up in the client at all
 
