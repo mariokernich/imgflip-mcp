@@ -1,7 +1,7 @@
 {
   "name": "imgflip",
   "description": "Generate Imgflip memes from Claude Code — browse templates and caption them via the Imgflip API",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Mario Kernich",
     "url": "https://github.com/mariokernich"

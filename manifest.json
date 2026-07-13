@@ -3,7 +3,7 @@
   "manifest_version": "0.2",
   "name": "imgflip-mcp",
   "display_name": "Imgflip Meme Generator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Browse Imgflip meme templates and generate memes through conversation.",
   "long_description": "Connects Claude to the Imgflip meme generator API. Ask for the most popular meme templates and have Claude caption them for you — from simple top/bottom text to multi-box templates with custom positioning and colors. A free Imgflip account is all you need; an optional Imgflip API Premium subscription unlocks template search, GIF captioning, automeme and AI meme generation.",
   "author": {
