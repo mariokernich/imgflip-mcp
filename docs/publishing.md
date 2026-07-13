@@ -103,7 +103,9 @@ Manual publish:
 
 ```bash
 # install the publisher CLI (or: brew install mcp-publisher)
-curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m).tar.gz" | tar xz mcp-publisher
+# note: release assets use amd64/arm64, not uname's x86_64/aarch64
+ARCH=$(uname -m); case "$ARCH" in x86_64) ARCH=amd64 ;; aarch64) ARCH=arm64 ;; esac
+curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_${ARCH}.tar.gz" | tar xz mcp-publisher
 
 ./mcp-publisher login github     # opens a device-code login
 ./mcp-publisher publish          # validates and uploads server.json

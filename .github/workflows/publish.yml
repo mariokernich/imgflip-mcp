@@ -73,15 +73,29 @@ jobs:
 
       # npm (not pnpm) is used for the publish itself: npm's --provenance
       # support is the most mature and works with setup-node's registry-url
-      # + NODE_AUTH_TOKEN wiring. The tarball content is identical.
+      # + NODE_AUTH_TOKEN wiring. Skipping already-published versions keeps
+      # workflow re-runs safe after a partial failure further down.
       - name: Publish to npm
-        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          if npm view "imgflip-mcp@${RELEASE_TAG#v}" version >/dev/null 2>&1; then
+            echo "imgflip-mcp@${RELEASE_TAG#v} is already on npm — skipping publish"
+          else
+            npm publish --provenance --access public
+          fi
 
+      # Release assets are named with amd64/arm64, while uname -m reports
+      # x86_64/aarch64 — hence the explicit mapping.
       - name: Publish to the MCP Registry
         run: |
-          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m).tar.gz" | tar xz mcp-publisher
+          ARCH=$(uname -m)
+          case "$ARCH" in
+            x86_64) ARCH=amd64 ;;
+            aarch64) ARCH=arm64 ;;
+          esac
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_${ARCH}.tar.gz" | tar xz mcp-publisher
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish
 
