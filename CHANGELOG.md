@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-09
+
+### Changed
+
+- **Node.js 22 or newer is now required** (`engines`, MCPB manifest).
+  Node 18 and 20 are end-of-life and no longer tested; CI now runs on
+  Node 22, 24 and 26. The tools, their parameters and the configuration
+  are unchanged.
+- Updated `@modelcontextprotocol/sdk` to 1.32 and `zod` to 4.6.
+- `IMGFLIP_PREMIUM` now ignores surrounding whitespace, and empty
+  `IMGFLIP_USERNAME`/`IMGFLIP_PASSWORD` values are treated as unset.
+- Internal: the server is split into focused modules (config, result
+  helpers, free/premium tools, prompts) with a `createServer()` factory;
+  tool behavior is unchanged.
+- Development tooling: TypeScript 7, Vitest 5, Biome rule presets; the
+  test suite is now type-checked too.
+- The README is now a compact landing page; detailed guides live only on
+  the documentation site, and CONTRIBUTING.md links to the development
+  guide instead of duplicating it.
+
+### Fixed
+
+- Security: the dependency update resolves all `pnpm audit` findings,
+  including the advisory in `@modelcontextprotocol/sdk` < 1.31 and
+  vulnerable transitive versions of `proxy-addr`, `fast-uri`, `hono`,
+  `qs` and `ip-address`. These ship inside the `.mcpb` Desktop Extension.
+- The publish workflow now verifies the Claude Code plugin versions too,
+  using the same `scripts/check-versions.mjs` as CI.
+
 ## [1.0.1] - 2026-07-13
 
 ### Fixed
@@ -41,5 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Biome for linting/formatting, Dependabot for dependency updates.
 - pnpm as the package manager (pinned via `packageManager`, used in CI).
 
-[Unreleased]: https://github.com/mariokernich/imgflip-mcp/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/mariokernich/imgflip-mcp/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/mariokernich/imgflip-mcp/compare/v1.0.1...v1.1.0
+[1.0.1]: https://github.com/mariokernich/imgflip-mcp/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mariokernich/imgflip-mcp/releases/tag/v1.0.0
