@@ -88,122 +88,12 @@ The server communicates over **stdio**, so your MCP client launches it as a subp
 
 | Route | Best for | How |
 | --- | --- | --- |
-| **npx** | most clients | `npx -y imgflip-mcp` — no clone, no build (requires the package on npm, see [the docs](https://mariokernich.github.io/imgflip-mcp/publishing/)) |
-| **Desktop Extension (`.mcpb`)** | Claude Desktop | download from [Releases](https://github.com/mariokernich/imgflip-mcp/releases), double-click, fill in the credentials form |
-| **Claude Code plugin** | Claude Code | `/plugin marketplace add mariokernich/imgflip-mcp` — this repo is its own plugin marketplace |
-| **VS Code button** | Copilot users | click the *Install in VS Code* badge above |
-| **From source** | development | see below |
+| **Desktop Extension (`.mcpb`)** | Claude Desktop | download from [Releases](https://github.com/mariokernich/imgflip-mcp/releases), double-click, fill in the credentials form — [guide](https://mariokernich.github.io/imgflip-mcp/install/claude-desktop/) |
+| **Claude Code plugin** | Claude Code | `/plugin marketplace add mariokernich/imgflip-mcp`, then `/plugin install imgflip@imgflip-mcp` — [guide](https://mariokernich.github.io/imgflip-mcp/install/claude-code/) |
+| **VS Code button** | Copilot users | click the *Install in VS Code* badge above — [guide](https://mariokernich.github.io/imgflip-mcp/install/vscode-copilot/) |
+| **npx** | any other client | command `npx`, args `["-y", "imgflip-mcp"]` — [guide](https://mariokernich.github.io/imgflip-mcp/install/other-clients/) |
 
-### From source
-
-```bash
-git clone https://github.com/mariokernich/imgflip-mcp.git
-cd imgflip-mcp
-corepack enable   # provides pnpm (see packageManager in package.json)
-pnpm install
-pnpm build
-```
-
-The compiled server entry point is `dist/index.js`; the config examples below use `npx -y imgflip-mcp`, which you can always replace with `node /absolute/path/to/imgflip-mcp/dist/index.js`.
-
-## Using with Claude
-
-### Claude Desktop
-
-**Option A — one-click Desktop Extension (recommended):**
-
-1. Download the latest `imgflip-mcp-*.mcpb` file from the [Releases page](https://github.com/mariokernich/imgflip-mcp/releases) (or build it yourself: `npx @anthropic-ai/mcpb pack`).
-2. Double-click the file (or use **Settings → Extensions → Install extension…**).
-3. Claude Desktop shows a configuration form: enter your Imgflip username and password (stored in the OS keychain) and, if you have API Premium, tick *Enable Premium tools*. Done — no JSON editing required.
-
-**Option B — manual JSON config:**
-
-1. Open Claude Desktop and go to **Settings → Developer → Edit Config**. This opens (or creates) `claude_desktop_config.json`:
-   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-2. Add the server under `mcpServers` (create the key if the file is empty):
-
-   ```json
-   {
-     "mcpServers": {
-       "imgflip": {
-         "command": "npx",
-         "args": ["-y", "imgflip-mcp"],
-         "env": {
-           "IMGFLIP_USERNAME": "your-username",
-           "IMGFLIP_PASSWORD": "your-password"
-         }
-       }
-     }
-   }
-   ```
-
-   If you have API Premium and want the extra tools, add `"IMGFLIP_PREMIUM": "true"` to the `env` block.
-3. Fully restart Claude Desktop (quit from the tray/menu bar, not just close the window).
-4. Open a new chat — the Imgflip tools now show up in the tools menu (🔌 icon). Try:
-
-   > *"Make a Drake meme: top 'manually formatting code', bottom 'letting the linter do it'."*
-
-   Claude will look up the template, call `caption_image`, and reply with the finished image link.
-
-### Claude Code (CLI)
-
-**Option A — as a plugin.** This repository is its own [plugin marketplace](https://mariokernich.github.io/imgflip-mcp/publishing/#4-claude-code-plugin-marketplace):
-
-```text
-/plugin marketplace add mariokernich/imgflip-mcp
-/plugin install imgflip@imgflip-mcp
-```
-
-The plugin reads `IMGFLIP_USERNAME`, `IMGFLIP_PASSWORD` and (optionally) `IMGFLIP_PREMIUM` from your shell environment, so export them in your `~/.bashrc`/`~/.zshrc`.
-
-**Option B — register the MCP server directly:**
-
-```bash
-claude mcp add imgflip \
-  --env IMGFLIP_USERNAME=your-username \
-  --env IMGFLIP_PASSWORD=your-password \
-  -- npx -y imgflip-mcp
-```
-
-Add `--env IMGFLIP_PREMIUM=true` if you have API Premium. Verify with:
-
-```bash
-claude mcp list   # "imgflip" should show as ✔ connected
-```
-
-Then simply ask inside any `claude` session:
-
-> *"Generate a 'This Is Fine' meme about our flaky CI pipeline and give me the URL."*
-
-By default Claude Code adds the server to the current project; use `claude mcp add --scope user …` to make it available in all your projects.
-
-### What a conversation looks like
-
-```text
-You:    Which meme templates are trending right now?
-Claude: [calls get_memes with limit 10] Here are the current top 10: 
-        Drake Hotline Bling, Distracted Boyfriend, Two Buttons, ...
-
-You:    Take the Two Buttons one. Button 1 "fix the root cause",
-        button 2 "add another workaround", and make it so.
-Claude: [calls caption_image with boxes]
-        Here's your meme: https://i.imgflip.com/9x7abc.jpg
-```
-
-## VS Code / GitHub Copilot
-
-Click the **Install in VS Code** badge at the top of this README — VS Code opens, prompts securely for your Imgflip username and password, and registers the server for Copilot's agent mode. Equivalent CLI one-liner:
-
-```bash
-code --add-mcp '{"name":"imgflip","command":"npx","args":["-y","imgflip-mcp"],"env":{"IMGFLIP_USERNAME":"${input:imgflip_username}","IMGFLIP_PASSWORD":"${input:imgflip_password}"},"inputs":[{"id":"imgflip_username","type":"promptString","description":"Imgflip username"},{"id":"imgflip_password","type":"promptString","description":"Imgflip password","password":true}]}'
-```
-
-Once published to the [MCP Registry](https://registry.modelcontextprotocol.io), the server is also discoverable in the [GitHub MCP Registry](https://github.com/mcp) and directly inside VS Code (**Extensions view → MCP SERVERS**).
-
-## Other MCP clients (Cursor, …)
-
-Any client that supports stdio MCP servers uses the same shape — command `npx`, args `["-y", "imgflip-mcp"]` (or `node` + path to `dist/index.js`), plus the environment variables. Example for Cursor (`.cursor/mcp.json`):
+Every client uses the same shape. For example, in Claude Desktop's `claude_desktop_config.json` or Cursor's `.cursor/mcp.json`:
 
 ```json
 {
@@ -220,235 +110,39 @@ Any client that supports stdio MCP servers uses the same shape — command `npx`
 }
 ```
 
-## Usage examples
-
-Some prompts that map directly onto the tools:
-
-- *"Show me the most popular meme templates right now."* → `get_memes`
-- *"Find a meme template with 'brain' in the name."* → `get_memes` with `name_filter: "brain"`
-- *"Make a Drake meme: top 'manually formatting code', bottom 'letting the linter do it'."* → `caption_image`
-- *"Create an Expanding Brain meme with four stages about coffee, tea, energy drinks, and pure willpower."* → `caption_image` with `boxes`
-- *"Search all of Imgflip for 'confused cat' templates."* → `search_memes` (Premium)
-- *"Auto-meme this: one does not simply deploy on a Friday."* → `automeme` (Premium)
-- *"Let the AI make a meme about standup meetings."* → `ai_meme` (Premium)
-
-### Typical workflow: create a meme
-
-**Step 1 — find a template.** Call `get_memes` (optionally with `name_filter`):
-
-```json
-{
-  "name": "get_memes",
-  "arguments": { "name_filter": "drake" }
-}
-```
-
-Response (excerpt):
-
-```json
-{
-  "count": 1,
-  "memes": [
-    {
-      "id": "181913649",
-      "name": "Drake Hotline Bling",
-      "url": "https://i.imgflip.com/30b1gx.jpg",
-      "width": 1200,
-      "height": 1200,
-      "box_count": 2
-    }
-  ]
-}
-```
-
-**Step 2 — caption it.** For templates with two boxes, `text0`/`text1` is enough:
-
-```json
-{
-  "name": "caption_image",
-  "arguments": {
-    "template_id": "181913649",
-    "text0": "Manually formatting code",
-    "text1": "Letting the linter do it"
-  }
-}
-```
-
-Response:
-
-```json
-{
-  "url": "https://i.imgflip.com/9x7abc.jpg",
-  "page_url": "https://imgflip.com/i/9x7abc"
-}
-```
-
-`url` is the direct image; `page_url` is the meme's page on imgflip.com.
-
-### Templates with more than two boxes
-
-Check the template's `box_count` and pass a `boxes` array instead of `text0`/`text1`. Example — Expanding Brain (`box_count: 4`):
-
-```json
-{
-  "name": "caption_image",
-  "arguments": {
-    "template_id": "93895088",
-    "boxes": [
-      { "text": "Drip coffee" },
-      { "text": "Espresso" },
-      { "text": "Energy drinks" },
-      { "text": "Pure willpower" }
-    ]
-  }
-}
-```
-
-Boxes are auto-positioned when you omit coordinates. For full control, each box also accepts `x`, `y`, `width`, `height` (pixels), `color`, and `outline_color` (hex codes):
-
-```json
-{
-  "text": "STONKS",
-  "x": 10,
-  "y": 225,
-  "width": 548,
-  "height": 100,
-  "color": "#ffffff",
-  "outline_color": "#000000"
-}
-```
-
-Styling options for `caption_image`:
-
-- `font` — `"impact"` (default) or `"arial"`
-- `max_font_size` — maximum font size in pixels (default 50); text shrinks automatically to fit
-- `no_watermark` — removes the imgflip.com watermark (Imgflip Premium accounts only)
-
-### Premium tools (only when `IMGFLIP_PREMIUM=true`)
-
-Remember: Premium is entirely optional — everything above works on the free tier. With an [Imgflip API Premium](https://imgflip.com/api_upgrade) subscription and `IMGFLIP_PREMIUM=true`, five more tools become available:
-
-```json
-{ "name": "search_memes", "arguments": { "query": "confused cat" } }
-```
-
-```json
-{ "name": "automeme", "arguments": { "text": "one does not simply deploy on a friday" } }
-```
-
-```json
-{
-  "name": "ai_meme",
-  "arguments": { "model": "openai", "prefix_text": "when the standup meeting" }
-}
-```
-
-`ai_meme` returns the generated image plus the template and texts the AI chose:
-
-```json
-{
-  "url": "https://i.imgflip.com/9xyz12.jpg",
-  "page_url": "https://imgflip.com/i/9xyz12",
-  "template_id": 61579,
-  "texts": ["when the standup meeting", "could have been a slack message"]
-}
-```
-
-If your account lacks Premium, these tools return the original Imgflip error message instead of failing silently.
-
-## Error handling
-
-All tools return errors as readable text with the MCP `isError` flag set, so Claude can react to them:
-
-- **Missing credentials** — set `IMGFLIP_USERNAME` / `IMGFLIP_PASSWORD` in the server's `env` block
-- **Invalid credentials / no Premium** — the original Imgflip error message is passed through
-- **Unknown `template_id`** — double-check the id via `get_memes` or `search_memes`
-
-## Development
-
-This project uses [pnpm](https://pnpm.io) (`corepack enable` sets it up automatically):
+Or for Claude Code in one line:
 
 ```bash
-pnpm install        # install dependencies
-pnpm build          # compile TypeScript to dist/
-pnpm dev            # compile in watch mode
-pnpm test           # build + run the Vitest suite (unit + stdio smoke tests)
-pnpm lint           # Biome lint & format check
-pnpm typecheck      # type-check without emitting
-pnpm start          # run the compiled server
+claude mcp add imgflip \
+  --env IMGFLIP_USERNAME=your-username \
+  --env IMGFLIP_PASSWORD=your-password \
+  -- npx -y imgflip-mcp
 ```
 
-CI runs lint, typecheck, tests, a version-consistency check and MCPB manifest validation on every push and pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and [CHANGELOG.md](CHANGELOG.md) for release history.
+Add `IMGFLIP_PREMIUM=true` to the environment if you have API Premium. Then just ask:
 
-Test interactively with the [MCP Inspector](https://github.com/modelcontextprotocol/inspector):
+> *"Make a Drake meme: top 'manually formatting code', bottom 'letting the linter do it'."*
 
-```bash
-IMGFLIP_USERNAME=you IMGFLIP_PASSWORD=secret \
-  npx @modelcontextprotocol/inspector node dist/index.js
-```
+## Documentation
 
-### Project structure
+Everything beyond the basics lives on the **[documentation site](https://mariokernich.github.io/imgflip-mcp/)**:
 
-```
-src/
-  index.ts        MCP server: tools, prompt, stdio transport
-  client.ts       Thin typed client for the Imgflip REST API
-  types.ts        Shared type definitions for API payloads
-test/             Vitest suite (client unit tests + stdio smoke tests)
-scripts/          sync-versions.mjs (single-source version from package.json)
-server.json       MCP Registry metadata
-manifest.json     Claude Desktop Extension (MCPB) manifest
-.claude-plugin/   Claude Code plugin + marketplace definition
-.mcp.json         MCP server wiring for the Claude Code plugin
-docs/             documentation site content (ProperDocs + Material)
-```
-
-## Distribution
-
-The server is distributed through the npm registry, the [official MCP Registry](https://registry.modelcontextprotocol.io) (which feeds the [GitHub MCP Registry](https://github.com/mcp) used by Copilot), a Claude Desktop Extension (`.mcpb`) attached to each GitHub release, and this repo's built-in Claude Code plugin marketplace. Releases are fully automated: push a `vX.Y.Z` tag and the [publish workflow](.github/workflows/publish.yml) does the rest. See the **[publishing guide](https://mariokernich.github.io/imgflip-mcp/publishing/)** for the complete walkthrough, including the one-time setup and manual fallbacks.
+- **[Quickstart](https://mariokernich.github.io/imgflip-mcp/quickstart/)** — from zero to first meme in five minutes
+- **[Creating memes](https://mariokernich.github.io/imgflip-mcp/creating-memes/)** — the two-step workflow, multi-box templates, positioning, colors and fonts
+- **[Tools reference](https://mariokernich.github.io/imgflip-mcp/tools/)** — every tool, parameter and response
+- **[Configuration](https://mariokernich.github.io/imgflip-mcp/configuration/)** and **[Premium tools](https://mariokernich.github.io/imgflip-mcp/premium/)**
+- **[FAQ & troubleshooting](https://mariokernich.github.io/imgflip-mcp/faq/)** — missing credentials, links without images, tools not showing up, …
+- **[Local development](https://mariokernich.github.io/imgflip-mcp/development/)**, **[architecture](https://mariokernich.github.io/imgflip-mcp/architecture/)** and **[publishing](https://mariokernich.github.io/imgflip-mcp/publishing/)**
 
 ## Privacy
 
-This server runs locally and is stateless: your Imgflip credentials and meme texts are sent exclusively to `https://api.imgflip.com` (which requires them for authentication and generation), and nothing is logged, stored, or sent anywhere else. Generated memes are hosted publicly on imgflip.com. Details in [PRIVACY.md](PRIVACY.md); Imgflip's own handling is covered by the [Imgflip privacy policy](https://imgflip.com/privacy).
+This server runs locally and is stateless: your Imgflip credentials and meme texts are sent exclusively to `https://api.imgflip.com` (which requires them for authentication and generation), and nothing is logged, stored, or sent anywhere else. Generated memes are hosted **publicly** on imgflip.com. Details in [PRIVACY.md](PRIVACY.md); Imgflip's own handling is covered by the [Imgflip privacy policy](https://imgflip.com/privacy).
 
-## Notes on the Imgflip API
+## Contributing
 
-- Generated images are hosted by Imgflip and may be deleted when they receive no views for a long period.
-- `get_memes` returns the top ~100 templates ordered by caption popularity over the last 30 days, so results change over time.
-- All generation endpoints are `application/x-www-form-urlencoded` POST requests; this server handles the encoding (including the `boxes[i][field]` array syntax) for you.
-- Full upstream documentation: <https://imgflip.com/api>
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the guidelines and [CHANGELOG.md](CHANGELOG.md) for release history. Something broken? [Open an issue](https://github.com/mariokernich/imgflip-mcp/issues) — ideally with the tool call that failed and your client.
 
-## FAQ
-
-**Do I need to pay for anything?**
-No. A free Imgflip account covers the core workflow (browse templates, create memes). Imgflip API Premium is only needed for the five opt-in extras like template search and AI memes — the server works happily without it, forever.
-
-**Why does the server only show two tools?**
-That's intentional. The five Premium tools stay hidden unless you set `IMGFLIP_PREMIUM=true`, so you never see tools that would just error on a free account. Two tools that work beat seven that don't.
-
-**Why username and password instead of an API key?**
-Ask Imgflip — their API has authenticated this way since forever. The pragmatic answer: create a dedicated Imgflip account just for the API and let your MCP client store the password (the Claude Desktop extension puts it in the OS keychain).
-
-**Are my memes private?**
-No. Everything you generate is hosted on imgflip.com under a public URL — anyone with the link can see it. Maybe don't caption the unreleased quarterly numbers. Imgflip may also delete images that get no views for a long time, so archive anything you're attached to.
-
-**Can I get rid of the watermark?**
-Yes, pass `no_watermark: true` — but it only works if your Imgflip account has a Premium subscription. Otherwise the watermark stays, as a small tribute to the free lunch you're eating.
-
-**The meme shows up as a link but not as an image. Why?**
-The server embeds the generated image inline when it can (up to 2 MB). If the image is bigger or the download hiccups, you still get the URL — embedding is best-effort by design and never fails the request.
-
-**My template has four text boxes. How do I fill them all?**
-Skip `text0`/`text1` and pass the `boxes` array instead — one entry per box, optionally with position and colors. Check the template's `box_count` from `get_memes` to know how many you need.
-
-**Does this only work with Claude?**
-No — any MCP client that speaks stdio works: GitHub Copilot in VS Code, Cursor, and friends. Claude just happens to have excellent taste in memes.
-
-**Is this an official Imgflip project?**
-No, it's an independent community project. All meme generation happens through their public API — see the [Imgflip terms](https://imgflip.com/terms) for what's allowed.
-
-**Something's broken. Where do I complain?**
-[Open an issue](https://github.com/mariokernich/imgflip-mcp/issues) — ideally with the tool call that failed and your client. Bonus points if the bug report contains a meme.
+This is an independent community project, not affiliated with Imgflip.
 
 ## License
 

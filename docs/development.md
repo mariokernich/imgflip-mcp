@@ -20,14 +20,19 @@ pnpm install
 | `pnpm test` | Build + run the full test suite (Vitest) |
 | `pnpm test:watch` | Tests in watch mode |
 | `pnpm lint` / `pnpm lint:fix` | Biome lint & format |
-| `pnpm typecheck` | Type-check without emitting |
+| `pnpm typecheck` | Type-check sources and tests without emitting |
 | `pnpm start` | Run the compiled server |
+| `pnpm check-versions` | Verify all metadata files carry the `package.json` version |
+| `pnpm sync-versions` | Copy the `package.json` version into all metadata files |
 
 ## Testing philosophy
 
 Two layers, no real API calls:
 
-- **`test/client.test.ts`** — unit tests for the API client with a mocked `fetch`: form encoding (including the `boxes[i][field]` array syntax), error paths, credential handling, timeouts.
+- **Unit tests** with a mocked `fetch`:
+    - `test/client.test.ts` — the API client: form encoding (including the `boxes[i][field]` array syntax), error paths, credential handling, timeouts.
+    - `test/config.test.ts` — environment variable parsing (credentials, `IMGFLIP_PREMIUM`).
+    - `test/results.test.ts` — tool result helpers: error wrapping and best-effort inline image embedding.
 - **`test/server.smoke.test.ts`** — boots the *compiled* server as a real subprocess and speaks MCP over stdio using the official SDK client: tool registration (free vs. Premium mode), annotations, prompt listing, error responses.
 
 To poke at the server manually against the real API:
@@ -46,9 +51,11 @@ Every push and PR runs lint, typecheck, the test suite (Node 22, 24 and 26), a v
 `package.json` is the single version source. Don't edit versions in `server.json`, `manifest.json` or `.claude-plugin/*` by hand:
 
 ```bash
-npm version patch   # bumps + syncs all files + creates the tag
+npm version patch   # or minor/major — bumps + syncs all files + creates the tag
 git push origin main --follow-tags
 ```
+
+Move the `[Unreleased]` entries in `CHANGELOG.md` to the new version first. The tag triggers the publish workflow — see [Publishing & Distribution](publishing.md).
 
 (`npm version` is used deliberately — pnpm has no equivalent, and it never touches `node_modules`.)
 

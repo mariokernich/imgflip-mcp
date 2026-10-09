@@ -23,6 +23,12 @@ No — any stdio MCP client works: Copilot in VS Code, Cursor, and friends. Clau
 **Is this an official Imgflip project?**
 No, independent community project. All generation happens through their public API, subject to the [Imgflip terms](https://imgflip.com/terms).
 
+**My template has four text boxes. How do I fill them all?**
+Skip `text0`/`text1` and pass the `boxes` array — one entry per box. Check the template's `box_count` from `get_memes`; see [Creating Memes](creating-memes.md#templates-with-more-than-two-boxes).
+
+**Something's broken. Where do I complain?**
+[Open an issue](https://github.com/mariokernich/imgflip-mcp/issues) — ideally with the tool call that failed and your client. Bonus points if the bug report contains a meme.
+
 ## Troubleshooting
 
 ### "Imgflip credentials are not configured"
