@@ -33,18 +33,7 @@ jobs:
         run: pnpm test
 
       - name: Check version consistency
-        run: |
-          PKG=$(jq -r .version package.json)
-          for v in "$(jq -r .version server.json)" \
-                   "$(jq -r '.packages[0].version' server.json)" \
-                   "$(jq -r .version manifest.json)" \
-                   "$(jq -r .version .claude-plugin/plugin.json)" \
-                   "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)"; do
-            if [ "$v" != "$PKG" ]; then
-              echo "::error::Version mismatch: package.json has $PKG, found $v (run pnpm run sync-versions)"
-              exit 1
-            fi
-          done
+        run: node scripts/check-versions.mjs
 
       - name: Validate MCPB manifest
         run: pnpm dlx @anthropic-ai/mcpb validate manifest.json

@@ -1,5 +1,5 @@
 # Release pipeline: push a tag like v1.2.3 and this workflow will
-#   1. verify the tag matches the versions in package.json / server.json / manifest.json
+#   1. verify the tag matches every version field (scripts/check-versions.mjs)
 #   2. build and publish the package to npm (with provenance)
 #   3. publish the server metadata to the official MCP Registry
 #      (which feeds the GitHub MCP Registry used by Copilot/VS Code)
@@ -52,19 +52,7 @@ jobs:
       - name: Check that all version fields match the tag
         env:
           RELEASE_TAG: ${{ steps.tag.outputs.tag }}
-        run: |
-          TAG_VERSION="${RELEASE_TAG#v}"
-          PKG=$(jq -r .version package.json)
-          SRV=$(jq -r .version server.json)
-          SRV_PKG=$(jq -r '.packages[0].version' server.json)
-          MAN=$(jq -r .version manifest.json)
-          echo "tag=$TAG_VERSION package.json=$PKG server.json=$SRV/$SRV_PKG manifest.json=$MAN"
-          for v in "$PKG" "$SRV" "$SRV_PKG" "$MAN"; do
-            if [ "$v" != "$TAG_VERSION" ]; then
-              echo "::error::Version mismatch: expected $TAG_VERSION, found $v"
-              exit 1
-            fi
-          done
+        run: node scripts/check-versions.mjs "$RELEASE_TAG"
 
       - name: Install and build
         run: |
