@@ -40,5 +40,5 @@ IMGFLIP_USERNAME=you IMGFLIP_PASSWORD=secret \
 
 ## Requirements
 
-- **Node.js 18+** available on the machine that runs the client
+- **Node.js 22+** available on the machine that runs the client
 - Outbound HTTPS access to `api.imgflip.com` (and `i.imgflip.com` for inline image embedding)

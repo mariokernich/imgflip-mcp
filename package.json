@@ -1,6 +1,6 @@
 {
   "name": "imgflip-mcp",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Model Context Protocol (MCP) server for the Imgflip meme generator API — browse templates, caption memes, and generate AI memes from any MCP client.",
   "keywords": [
     "mcp",
@@ -31,31 +31,32 @@
     "dist"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p test",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "pretest": "pnpm build",
     "test": "vitest run",
     "test:watch": "vitest",
     "sync-versions": "node scripts/sync-versions.mjs",
+    "check-versions": "node scripts/check-versions.mjs",
     "version": "node scripts/sync-versions.mjs && git add server.json manifest.json .claude-plugin",
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "zod": "^4.4.3"
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.3",
-    "@types/node": "^26.1.1",
-    "typescript": "^5.9.0",
-    "vitest": "^4.1.10"
+    "@biomejs/biome": "^2.5.15",
+    "@types/node": "^22.20.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

@@ -1,12 +1,19 @@
 # Architecture
 
-Deliberately small: three source files, no state, no magic.
+Deliberately small: a handful of focused source files, no state, no magic.
 
 ```
 src/
-  index.ts    MCP server — tool/prompt registration, stdio transport
-  client.ts   Typed client for the Imgflip REST API
-  types.ts    Shared type definitions for API payloads
+  index.ts          Entry point — reads the config, connects the stdio transport
+  server.ts         createServer(config): builds the McpServer, registers tools/prompts
+  config.ts         Environment variables → typed config (credentials, premium flag)
+  client.ts         Typed client for the Imgflip REST API
+  results.ts        Tool result helpers: ok/fail, error guard, inline image embedding
+  prompts.ts        The make-meme prompt
+  tools/free.ts     get_memes, caption_image
+  tools/premium.ts  search_memes, get_meme, caption_gif, automeme, ai_meme
+  tools/schemas.ts  Shared zod schemas and tool annotations
+  types.ts          Shared type definitions for API payloads
 ```
 
 ## Request flow
@@ -43,6 +50,6 @@ sequenceDiagram
 
 - **Transport:** stdio via `@modelcontextprotocol/sdk` (`McpServer` + `StdioServerTransport`)
 - **Validation:** zod schemas per tool; the SDK converts them to JSON Schema for clients
-- **HTTP:** native `fetch` (Node ≥ 18) with a 30 s `AbortSignal.timeout`
+- **HTTP:** native `fetch` (Node ≥ 22) with a 30 s `AbortSignal.timeout`
 - **Form encoding:** `URLSearchParams`, including Imgflip's `boxes[i][field]` array convention
 - **Version:** read from `package.json` at runtime — single source, synced to all metadata files by `scripts/sync-versions.mjs`

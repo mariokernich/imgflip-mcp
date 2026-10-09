@@ -32,5 +32,5 @@ Things that are fixed by design (no knobs, on purpose):
 The examples use `npx -y imgflip-mcp`, which resolves the latest published version. To pin:
 
 ```json
-"args": ["-y", "imgflip-mcp@1.0.0"]
+"args": ["-y", "imgflip-mcp@1.1.0"]
 ```
