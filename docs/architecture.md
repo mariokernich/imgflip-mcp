@@ -43,6 +43,6 @@ sequenceDiagram
 
 - **Transport:** stdio via `@modelcontextprotocol/sdk` (`McpServer` + `StdioServerTransport`)
 - **Validation:** zod schemas per tool; the SDK converts them to JSON Schema for clients
-- **HTTP:** native `fetch` (Node ≥ 18) with a 30 s `AbortSignal.timeout`
+- **HTTP:** native `fetch` (Node ≥ 22) with a 30 s `AbortSignal.timeout`
 - **Form encoding:** `URLSearchParams`, including Imgflip's `boxes[i][field]` array convention
 - **Version:** read from `package.json` at runtime — single source, synced to all metadata files by `scripts/sync-versions.mjs`

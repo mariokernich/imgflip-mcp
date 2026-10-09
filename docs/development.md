@@ -39,7 +39,7 @@ IMGFLIP_USERNAME=you IMGFLIP_PASSWORD=secret \
 
 ## CI
 
-Every push and PR runs lint, typecheck, the test suite (Node 20 + 22), a version-consistency check across all metadata files, and MCPB manifest validation — see `.github/workflows/ci.yml`.
+Every push and PR runs lint, typecheck, the test suite (Node 22, 24 and 26), a version-consistency check across all metadata files, and MCPB manifest validation — see `.github/workflows/ci.yml`.
 
 ## Versioning
 

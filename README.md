@@ -67,7 +67,7 @@ These require an [Imgflip API Premium subscription](https://imgflip.com/api_upgr
 
 ## Prerequisites
 
-- **Node.js 18+**
+- **Node.js 22+**
 - An **Imgflip account** ([sign up for free](https://imgflip.com/signup)) — required for every tool except `get_memes`
 
 ### Environment variables
