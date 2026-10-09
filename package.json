@@ -38,7 +38,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p test",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "pretest": "pnpm build",
